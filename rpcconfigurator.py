@@ -1,7 +1,6 @@
 import os
 import configparser
 import tkinter as tk
-from tkinter import *
 from tkinter.ttk import *
 
 # Sprawdzanie systemu operacyjnego (linux)
@@ -17,7 +16,7 @@ if os.name == 'posix':
     # Sprawdzanie czy plik konfiguracyjny istnieje
     if not os.path.exists(home + '/.config/AkaneRPC/config.txt'):
         print('PLIK KONFIGURACYJNY NIE ISTNIEJE!')
-        lines = ['[RPC]\nClientID=000000000000000000\nDetails=none\nState=none\nLargeImageKey=none\nSmallImageKey=none\nLargeImageText=none\nSmallImageText=none']
+        lines = ['[RPC]\nClientID=000000000000000000\nDetails=none\nState=none\nLargeImageKey=none\nSmallImageKey=none\nLargeImageText=none\nSmallImageText=none\nshowCPU=False\nshowRAM=False']
         with open(home + '/.config/AkaneRPC/config.txt', 'w') as configFile:
             print('TWORZENIE PLIKU KONFIGURACYJNEGO')
             configFile.writelines(lines)
@@ -40,7 +39,7 @@ elif os.name == 'nt':
     if not os.path.exists(home + "\config.txt"):
         print("Brak pliku konfiguracyjnego! (C:\AkaneRPC\config.txt)")
         print("Tworzenie pliku konfiguracyjnego...")
-        lines = ['[RPC]\nClientID=000000000000000000\nDetails=none\nState=none\nLargeImageKey=none\nSmallImageKey=none\nLargeImageText=none\nSmallImageText=none']
+        lines = ['[RPC]\nClientID=000000000000000000\nDetails=none\nState=none\nLargeImageKey=none\nSmallImageKey=none\nLargeImageText=none\nSmallImageText=none\nshowCPU=False\nshowRAM=False']
         with open(home + "\config.txt", "w") as configFile:
             configFile.writelines(lines)
             configFile.close()
@@ -95,6 +94,26 @@ except configparser.NoOptionError:
             configFile.writelines(lines)
             configFile.close()
     simgtext = 'none'
+# Pokazywanie procentu procesora
+try:
+    showCPU = parser.get('RPC', 'showCPU')
+except configparser.NoOptionError:
+    if os.name == 'nt':
+        lines = ['\nshowCPU=False']
+        with open(home + '\config.txt', 'a') as configFile:
+            configFile.writelines(lines)
+            configFile.close()
+    showCPU = 'False'
+# Pokazywanie procentu ramu
+try:
+    showRAM = parser.get('RPC', 'showRAM')
+except configparser.NoOptionError:
+    if os.name == 'nt':
+        lines = ['\nshowRAM=False']
+        with open(home + '\config.txt', 'a') as configFile:
+            configFile.writelines(lines)
+            configFile.close()
+    showRAM = 'False'
 
 # Funkcja zapisująca
 def save():
@@ -113,14 +132,21 @@ def save():
     limgtext = lit.get()
     # Tekst małego zdjęcia
     simgtext = sit.get()
-    lines = ['[RPC]\nClientID='+clientinfo+'\nDetails='+details+'\nState='+state+'\nLargeImageKey='+largeimg+'\nSmallImageKey='+smallimg+'\nLargeImageText='+limgtext+'\nSmallImageText='+simgtext]
+    # Pokaż procent procesora
+    showCPUt2 = f'{showCPUt.get()}'
+    # Pokaż procent RAMu
+    showRAMt2 = f'{showRAMt.get()}'
+    # Przygotuj informacje do zapisu
+    lines = ['[RPC]\nClientID='+clientinfo+'\nDetails='+details+'\nState='+state+'\nLargeImageKey='+largeimg+'\nSmallImageKey='+smallimg+'\nLargeImageText='+limgtext+'\nSmallImageText='+simgtext+'\nshowCPU='+showCPUt2+'\nshowRAM='+showRAMt2]
     # Sprawdzanie systemu operacyjnego (linux)
     if os.name == 'posix':
+        # Zapisz
         with open(home + '/.config/AkaneRPC/config.txt', 'w') as configFile:
             configFile.writelines(lines)
             configFile.close()
     # Sptawdzanie systemu operacyjego (windows)
     if os.name == 'nt':
+        # Zapisz
         with open(home + '\config.txt', 'w') as configFile:
             configFile.writelines(lines)
             configFile.close()
@@ -129,7 +155,7 @@ def save():
 main = tk.Tk()
 
 # Ustawianie tytułu i rozmiarów
-main.geometry("330x365")
+main.geometry("330x390")
 main.title("Konfigurator AkaneRPC")
 
 # Rozdzielacz
@@ -177,6 +203,14 @@ lab.pack()
 sit = Entry(main)
 sit.pack()
 sit.insert('end', simgtext)
+# Pokaż procent procesora
+showCPUt = tk.StringVar(value=showCPU)
+cpucheck = Checkbutton(main, text='Pokaż procent procesora', variable=showCPUt, onvalue='True', offvalue='False')
+cpucheck.pack()
+# Pokaż procent RAMu
+showRAMt = tk.StringVar(value=showRAM)
+ramcheck = Checkbutton(main, text='Pokaż procent RAMu', variable=showRAMt, onvalue='True', offvalue='False')
+ramcheck.pack()
 # Rozdzielacz
 lab = Label(main, text='')
 lab.pack()

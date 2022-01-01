@@ -1,5 +1,4 @@
 import pypresence as rpc
-from pypresence import *
 import time
 import configparser
 import os
@@ -7,6 +6,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter.ttk import *
 import pypresence
+import psutil
 
 # Funkcja do bezpiecznego wyłączania programu
 def exitprogram():
@@ -49,6 +49,8 @@ try:
     smallimg = parser.get('RPC', 'SmallImageKey')
     limgtext = parser.get('RPC', 'LargeImageText')
     simgtext = parser.get('RPC', 'SmallImageText')
+    showCPU = parser.get('RPC', 'showCPU')
+    showRAM = parser.get('RPC', 'showRAM')
 
 # W razie gdy zbieranie informacji z pliku konfiguracji wyrzuci błąd pokazywanie okna błędu
 except:
@@ -60,7 +62,6 @@ except:
     but.pack()
     main.protocol("WM_DELETE_WINDOW", exitprogram)
     main.mainloop()
-
 # Ustawianie identyfikatora klienta
 rpresence = rpc.Presence(clientinfo)
 
@@ -87,9 +88,20 @@ def connect():
 # Aktualizowanie statusu
 def update():
     try:
-        print(rpresence.update(state=state, details=details, large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
+        if showCPU == 'True' and showRAM == 'True':
+            cpu = str(psutil.cpu_percent(5))
+            ram = str(psutil.virtual_memory()[2])
+            print(rpresence.update(state=state + " " + ram + "%", details=details + " " + cpu + "%", large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
+        if showCPU == 'True' and showRAM == 'False':
+            cpu = str(psutil.cpu_percent(5))
+            print(rpresence.update(state=state, details=details + " " + cpu + "%", large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
+        if showCPU == 'False' and showRAM == 'True':
+            ram = str(psutil.virtual_memory()[2])
+            print(rpresence.update(state=state + " " + ram + "%", details=details, large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
+        if showCPU == 'False' and showRAM == 'False':
+            print(rpresence.update(state=state, details=details, large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
 
-# Jeśli detale lub stan mają mniej niż 2 litery pokazujemy okno błędu     
+# Jeśli detale lub stan mają mniej niż 2 litery pokazujemy okno błędu
     except(pypresence.exceptions.ServerError):
         main = tk.Tk()
         main.title('BŁĄD')
@@ -116,4 +128,4 @@ while True:
         print('DISCORDCLOSEDERROR')
         rpresence.close()
         rpresence = rpc.Presence(clientinfo)
-    time.sleep(10)
+    time.sleep(5)
