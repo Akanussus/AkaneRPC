@@ -101,16 +101,38 @@ def update():
         if showCPU == 'False' and showRAM == 'False':
             print(rpresence.update(state=state, details=details, large_image=largeimg, small_image=smallimg, large_text=limgtext, small_text=simgtext))
 
-# Jeśli detale lub stan mają mniej niż 2 litery pokazujemy okno błędu
+# Błędy dotyczące:
     except(pypresence.exceptions.ServerError):
-        main = tk.Tk()
-        main.title('BŁĄD')
-        lab = Label(main, text='detale lub stan mają mniej niż 2 litery!')
-        lab.pack(padx=10,pady=15)
-        but = Button(main, text='OK', command=exitprogram)
-        but.pack()
-        main.protocol("WM_DELETE_WINDOW", exitprogram)
-        main.mainloop()
+        # Długości detali będącej mniejszą niż 2 litery
+        if details.len() < 2:
+            main = tk.Tk()
+            main.title('BŁĄD')
+            lab = Label(main, text='Detale mają mniej niż 2 litery!')
+            lab.pack(padx=10,pady=15)
+            but = Button(main, text='OK', command=exitprogram)
+            but.pack()
+            main.protocol("WM_DELETE_WINDOW", exitprogram)
+            main.mainloop()
+        # Długości stanu będącej mniejszą niż 2 litery
+        elif state.len() < 2:
+            main = tk.Tk()
+            main.title('BŁĄD')
+            lab = Label(main, text='Stan ma mniej niż 2 litery!')
+            lab.pack(padx=10, pady=15)
+            but = Button(main, text='OK', command=exitprogram)
+            but.pack()
+            main.protocol("WM_DELETE_WINDOW", exitprogram)
+            main.mainloop()
+        # Braku internetu
+        else:
+            main = tk.Tk()
+            main.title('BŁĄD')
+            lab = Label(main, text='Błąd sieci! Sprawdź czy masz dostęp do internetu.')
+            lab.pack(padx=10, pady=15)
+            but = Button(main, text='OK', command=exitprogram)
+            but.pack()
+            main.protocol("WM_DELETE_WINDOW", exitprogram)
+            main.mainloop()
 # Jeśli discord zostaje zamknięty podczas działania programu próbujemy ponownie się połączyć
     except(AssertionError):
         print('ASSERTIONERROR')
