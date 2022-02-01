@@ -104,6 +104,15 @@ except configparser.NoOptionError:
             configFile.writelines(lines)
             configFile.close()
     showCPU = 'False'
+try:
+    showElapsed = parser.get('RPC', 'showElapsed')
+except configparser.NoOptionError:
+    if os.name == 'nt':
+        lines = ['\nshowElapsed=False']
+        with open(home + '\config.txt', 'a') as configFile:
+            configFile.writelines(lines)
+            configFile.close()
+    showElapsed = 'False'
 # Pokazywanie procentu ramu
 try:
     showRAM = parser.get('RPC', 'showRAM')
@@ -136,8 +145,9 @@ def save():
     showCPUt2 = f'{showCPUt.get()}'
     # Pokaż procent RAMu
     showRAMt2 = f'{showRAMt.get()}'
+    showElapsedt2 = f'{showElapsedt.get()}'
     # Przygotuj informacje do zapisu
-    lines = ['[RPC]\nClientID='+clientinfo+'\nDetails='+details+'\nState='+state+'\nLargeImageKey='+largeimg+'\nSmallImageKey='+smallimg+'\nLargeImageText='+limgtext+'\nSmallImageText='+simgtext+'\nshowCPU='+showCPUt2+'\nshowRAM='+showRAMt2]
+    lines = ['[RPC]\nClientID='+clientinfo+'\nDetails='+details+'\nState='+state+'\nLargeImageKey='+largeimg+'\nSmallImageKey='+smallimg+'\nLargeImageText='+limgtext+'\nSmallImageText='+simgtext+'\nshowCPU='+showCPUt2+'\nshowRAM='+showRAMt2+'\nshowElapsed='+showElapsedt2]
     # Sprawdzanie systemu operacyjnego (linux)
     if os.name == 'posix':
         # Zapisz
@@ -155,7 +165,7 @@ def save():
 main = tk.Tk()
 
 # Ustawianie tytułu i rozmiarów
-main.geometry("330x390")
+main.geometry("330x420")
 main.title("Konfigurator AkaneRPC")
 
 # Rozdzielacz
@@ -211,6 +221,9 @@ cpucheck.pack()
 showRAMt = tk.StringVar(value=showRAM)
 ramcheck = Checkbutton(main, text='Pokaż procent RAMu', variable=showRAMt, onvalue='True', offvalue='False')
 ramcheck.pack()
+showElapsedt = tk.StringVar(value=showElapsed)
+elapsedcheck = Checkbutton(main, text='Pokaż czas spędzony od uruchomienia discorda', variable=showElapsedt, onvalue='True', offvalue='False')
+elapsedcheck.pack()
 # Rozdzielacz
 lab = Label(main, text='')
 lab.pack()
